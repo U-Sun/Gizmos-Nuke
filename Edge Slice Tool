@@ -1,0 +1,1230 @@
+set cut_paste_input [stack 0]
+version 13.0 v1
+push $cut_paste_input
+Group {
+ name EDGE_SLICE_TOOL
+ tile_color 0x515151ff
+ note_font_color 0xd4aaffff
+ selected true
+ xpos -301
+ ypos -49
+ addUserKnob {20 User}
+ addUserKnob {41 size l "Dilate In" T Dilate20.size}
+ addUserKnob {41 size_1 l "Dilate Out" T Dilate19.size}
+ addUserKnob {41 size_2 l "Blur In" T Blur38.size}
+ addUserKnob {41 size_3 l "Blur Out" T Blur37.size}
+ addUserKnob {26 T l "U-Sun 2015"}
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos -269
+  ypos 376
+ }
+ Dot {
+  name Dot109
+  xpos -235
+  ypos 416
+ }
+set N3032d400 [stack 0]
+ Dot {
+  name Dot110
+  xpos -92
+  ypos 416
+ }
+set N3032d000 [stack 0]
+ Dot {
+  name Dot111
+  xpos 34
+  ypos 416
+ }
+push $N3032d400
+ Dilate {
+  size -12.5
+  name Dilate19
+  xpos -269
+  ypos 494
+ }
+ Blur {
+  size 13
+  name Blur37
+  selected true
+  xpos -269
+  ypos 560
+ }
+push $N3032d000
+ Copy {
+  inputs 2
+  from0 rgba.alpha
+  to0 rgba.alpha
+  name Copy13
+  xpos -126
+  ypos 560
+ }
+ Premult {
+  name Premult13
+  xpos -126
+  ypos 628
+ }
+push $N3032d400
+ Dot {
+  name Dot112
+  xpos -365
+  ypos 416
+ }
+set N302db400 [stack 0]
+ Dot {
+  name Dot113
+  xpos -544
+  ypos 416
+ }
+ Grade {
+  channels alpha
+  blackpoint 0.2
+  multiply 1.06
+  gamma 0.345
+  white_clamp true
+  name Grade15
+  xpos -578
+  ypos 476
+ }
+ Dilate {
+  size -25
+  name Dilate20
+  xpos -578
+  ypos 527
+ }
+set N302da800 [stack 0]
+push $N302db400
+ Premult {
+  name Premult14
+  xpos -399
+  ypos 461
+ }
+ Group {
+  inputs 2
+  name SLICES
+  help "EdgeExtend repeatedly blurs and unpremuliplies the image to extend edges outward while trying to preserve the original source colour"
+  xpos -399
+  ypos 531
+  addUserKnob {20 "" l User}
+  addUserKnob {4 premult l "input is" M {premultiplied unpremultiplied}}
+  addUserKnob {3 slices t "How many times the edges are blurred and unpremuliplied.\nThis is the fine control for slightly better quality. The current maximum is 10."}
+  slices 10
+  addUserKnob {3 slice_width l "slice width" t "Blur amount that is applied before unpremultiplying the result per slice.\nThis is the brute force control and should be kept at 1 if possible.\nOnly increase this if the maximum amount of slices (10) doesn't cover the area you need."}
+  slice_width 12
+  addUserKnob {7 blurResult l "blur slices" R 0 10}
+  blurResult 1.85
+ }
+  Input {
+   inputs 0
+   name img
+   xpos -590
+   ypos -509
+  }
+set N302da000 [stack 0]
+  Dot {
+   name Dot1
+   xpos -556
+   ypos 978
+  }
+  Input {
+   inputs 0
+   name matte
+   xpos -358
+   ypos -653
+   number 1
+  }
+push $N302da000
+  Unpremult {
+   name Unpremult11
+   xpos -468
+   ypos -509
+   disable {{parent.premult}}
+  }
+  Copy {
+   inputs 2
+   from0 -rgba.alpha
+   to0 -rgba.alpha
+   channels alpha
+   name Copy2
+   xpos -358
+   ypos -516
+  }
+  Premult {
+   name Premult1
+   xpos -358
+   ypos -450
+  }
+  Shuffle {
+   black alpha
+   out2 depth
+   name Shuffle1
+   label alpha>depth
+   xpos -223
+   ypos -413
+  }
+  Unpremult {
+   channels {rgba.red rgba.green rgba.blue depth.Z}
+   name Unpremult1
+   xpos -223
+   ypos -373
+  }
+set N302d8400 [stack 0]
+  Dot {
+   name Dot2
+   xpos -189
+   ypos -214
+  }
+set N3027fc00 [stack 0]
+push $N302d8400
+  Blur {
+   channels {rgba.red rgba.green rgba.blue depth.Z}
+   size {{parent.slice_width}}
+   name Blur1
+   xpos -25
+   ypos -373
+  }
+  Shuffle {
+   in2 depth
+   alpha red2
+   out2 depth
+   name Shuffle3
+   label depth>alpha
+   xpos -25
+   ypos -333
+  }
+  Unpremult {
+   channels rgba
+   alpha depth.Z
+   name Unpremult3
+   xpos -25
+   ypos -293
+  }
+  Blur {
+   channels rgba
+   size {{parent.blurResult}}
+   name Blur10
+   xpos -25
+   ypos -241
+  }
+  set C3027ec00 [stack 0]
+  Merge2 {
+   inputs 2
+   Achannels {rgba.red rgba.green rgba.blue depth.Z}
+   name Merge1
+   xpos -25
+   ypos -218
+  }
+set N3027e800 [stack 0]
+  Dot {
+   name Dot3
+   xpos 9
+   ypos -73
+  }
+set N3027e400 [stack 0]
+push $N3027e800
+  Blur {
+   channels rgba
+   size {{parent.slice_width}}
+   name Blur2
+   xpos 159
+   ypos -218
+  }
+  Shuffle {
+   in2 depth
+   black alpha
+   out2 depth
+   name Shuffle5
+   label alpha>depth
+   xpos 159
+   ypos -180
+  }
+  Unpremult {
+   channels {rgba.red rgba.green rgba.blue depth.Z}
+   name Unpremult2
+   xpos 159
+   ypos -140
+  }
+  Blur {
+   channels {rgba.red rgba.green rgba.blue depth.Z}
+   size {{parent.blurResult}}
+   name Blur3
+   xpos 159
+   ypos -101
+  }
+  set C3027d400 [stack 0]
+  Merge2 {
+   inputs 2
+   name Merge2
+   xpos 159
+   ypos -73
+  }
+set N3027d000 [stack 0]
+  Dot {
+   name Dot4
+   xpos 193
+   ypos 103
+  }
+set N3027cc00 [stack 0]
+push $N3027d000
+  Shuffle {
+   in2 depth
+   alpha red2
+   out2 depth
+   name Shuffle2
+   label depth>alpha
+   xpos 342
+   ypos -24
+  }
+  Unpremult {
+   channels rgba
+   alpha depth.Z
+   name Unpremult4
+   xpos 342
+   ypos 16
+  }
+set N3027c400 [stack 0]
+clone $C3027ec00 {
+   xpos 342
+   ypos 68
+   selected false
+  }
+  Merge2 {
+   inputs 2
+   Achannels {rgba.red rgba.green rgba.blue depth.Z}
+   name Merge3
+   xpos 342
+   ypos 103
+  }
+  Dot {
+   name Dot5
+   xpos 373
+   ypos 226
+  }
+set N3022b400 [stack 0]
+push $N3027c400
+  Blur {
+   channels rgba
+   size {{parent.slice_width}}
+   name Blur5
+   xpos 503
+   ypos 23
+  }
+  Shuffle {
+   in2 depth
+   black alpha
+   out2 depth
+   name Shuffle4
+   label alpha>depth
+   xpos 503
+   ypos 65
+  }
+  Unpremult {
+   channels {rgba.red rgba.green rgba.blue depth.Z}
+   name Unpremult5
+   xpos 503
+   ypos 105
+  }
+set N3022a800 [stack 0]
+clone $C3027d400 {
+   xpos 503
+   ypos 174
+   selected false
+  }
+  Merge2 {
+   inputs 2
+   name Merge4
+   xpos 503
+   ypos 226
+  }
+  Dot {
+   name Dot6
+   xpos 537
+   ypos 321
+  }
+set N30229c00 [stack 0]
+push $N3022a800
+  Blur {
+   channels {rgba.red rgba.green rgba.blue depth.Z}
+   size {{parent.slice_width}}
+   name Blur7
+   xpos 689
+   ypos 105
+  }
+  Shuffle {
+   in2 depth
+   alpha red2
+   out2 depth
+   name Shuffle6
+   label depth>alpha
+   xpos 689
+   ypos 145
+  }
+  Unpremult {
+   channels rgba
+   alpha depth.Z
+   name Unpremult6
+   xpos 689
+   ypos 185
+  }
+set N30229000 [stack 0]
+clone $C3027ec00 {
+   xpos 684
+   ypos 272
+   selected false
+  }
+  Merge2 {
+   inputs 2
+   Achannels {rgba.red rgba.green rgba.blue depth.Z}
+   name Merge5
+   xpos 689
+   ypos 321
+  }
+  Dot {
+   name Dot7
+   xpos 723
+   ypos 448
+  }
+set N30228400 [stack 0]
+push $N30229000
+  Blur {
+   channels rgba
+   size {{parent.slice_width}}
+   name Blur9
+   xpos 856
+   ypos 200
+  }
+  Shuffle {
+   in2 depth
+   black alpha
+   out2 depth
+   name Shuffle7
+   label alpha>depth
+   xpos 856
+   ypos 280
+  }
+  Unpremult {
+   channels {rgba.red rgba.green rgba.blue depth.Z}
+   name Unpremult7
+   xpos 856
+   ypos 320
+  }
+set N301bf400 [stack 0]
+clone $C3027d400 {
+   xpos 852
+   ypos 405
+   selected false
+  }
+  Merge2 {
+   inputs 2
+   name Merge6
+   xpos 856
+   ypos 448
+  }
+  Dot {
+   name Dot8
+   xpos 890
+   ypos 514
+  }
+set N301be800 [stack 0]
+push $N301bf400
+  Blur {
+   channels {rgba.red rgba.green rgba.blue depth.Z}
+   size {{parent.slice_width}}
+   name Blur12
+   xpos 1042
+   ypos 320
+  }
+  Shuffle {
+   in2 depth
+   alpha red2
+   out2 depth
+   name Shuffle8
+   label depth>alpha
+   xpos 1042
+   ypos 395
+  }
+  Unpremult {
+   channels rgba
+   alpha depth.Z
+   name Unpremult8
+   xpos 1042
+   ypos 433
+  }
+set N301bdc00 [stack 0]
+clone $C3027ec00 {
+   xpos 1046
+   ypos 484
+   selected false
+  }
+  Merge2 {
+   inputs 2
+   Achannels {rgba.red rgba.green rgba.blue depth.Z}
+   name Merge7
+   xpos 1042
+   ypos 514
+  }
+  Dot {
+   name Dot9
+   xpos 1076
+   ypos 579
+  }
+set N301bd000 [stack 0]
+push $N301bdc00
+  Blur {
+   channels rgba
+   size {{parent.slice_width}}
+   name Blur14
+   xpos 1205
+   ypos 440
+  }
+  Shuffle {
+   in2 depth
+   black alpha
+   out2 depth
+   name Shuffle9
+   label alpha>depth
+   xpos 1205
+   ypos 466
+  }
+  Unpremult {
+   channels {rgba.red rgba.green rgba.blue depth.Z}
+   name Unpremult9
+   xpos 1205
+   ypos 506
+  }
+set N301bc400 [stack 0]
+clone $C3027d400 {
+   xpos 1206
+   ypos 551
+   selected false
+  }
+  Merge2 {
+   inputs 2
+   name Merge8
+   xpos 1205
+   ypos 579
+  }
+  Dot {
+   name Dot10
+   xpos 1239
+   ypos 664
+  }
+set N4550f400 [stack 0]
+push $N301bc400
+  Blur {
+   channels {rgba.red rgba.green rgba.blue depth.Z}
+   size {{parent.slice_width}}
+   name Blur16
+   xpos 1421
+   ypos 506
+  }
+  Shuffle {
+   in2 depth
+   alpha red2
+   out2 depth
+   name Shuffle11
+   label depth>alpha
+   xpos 1421
+   ypos 544
+  }
+  Unpremult {
+   channels rgba
+   alpha depth.Z
+   name Unpremult10
+   xpos 1421
+   ypos 586
+  }
+clone $C3027ec00 {
+   xpos 1421
+   ypos 638
+   selected false
+  }
+  Merge2 {
+   inputs 2
+   Achannels {rgba.red rgba.green rgba.blue depth.Z}
+   name Merge9
+   xpos 1421
+   ypos 664
+  }
+push $N4550f400
+push $N301bd000
+push $N301be800
+push $N30228400
+push $N30229c00
+push $N3022b400
+push $N3027cc00
+push $N3027e400
+push $N3027fc00
+push $N302da000
+  Switch {
+   inputs 11
+   which {{parent.slices}}
+   name Switch1
+   xpos 689
+   ypos 827
+  }
+  Shuffle {
+   in2 depth
+   alpha red2
+   out2 depth
+   name Shuffle10
+   label depth>alpha
+   xpos 689
+   ypos 867
+  }
+  Remove {
+   channels depth
+   name Remove1
+   xpos 689
+   ypos 905
+  }
+  Copy {
+   inputs 2
+   from0 -rgba.alpha
+   to0 -rgba.alpha
+   channels depth
+   name Copy1
+   xpos 689
+   ypos 960
+  }
+  Output {
+   name Output1
+   xpos 689
+   ypos 1290
+  }
+ end_group
+ Blur {
+  size 2.2
+  name Blur38
+  xpos -399
+  ypos 652
+ }
+ Group {
+  name Grain_USUN2
+  help "Grain with 3 levels of noise, simulating grain profiles of digital cinema cameras"
+  xpos -399
+  ypos 763
+  addUserKnob {20 Grain}
+  addUserKnob {3 seed t "Change this value to make different instances of this operator produce different noise"}
+  seed 244
+  addUserKnob {35 presets l INVISIBLE -STARTLINE +INVISIBLE M {"presets/Kodak 5248" "knobs this \{red_size 3.30 green_size 2.90 blue_size 2.5 red_i 0.60 green_i 0.60 blue_i 0.60 red_m 0.42 green_m 0.46 blue_m 0.85 black 0.00 label \{Kodak 5248\}\}" "presets/Kodak 5279" "knobs this \{red_size 2.70 green_size 2.60 blue_size 2.40 red_i 1.00 green_i 0.76 blue_i 0.65 red_m 0.37 green_m 0.60 blue_m 1.65 black 0.00 label \{Kodak 5279\}\}" "presets/Kodak FX214" "knobs this \{red_size 1.87 green_size 2.60 blue_size 2.44 red_i 1 green_i 0.76 blue_i 0.79 red_m 0.41 green_m 0.60 blue_m 1.80 black 0.00 label \{Kodak FX214\}\}" "presets/Kodak GT5274" "knobs this \{red_size 0.04 green_size 0.10 blue_size 0.90 red_i 0.90 green_i 0.76 blue_i 0.81 red_m 0.49 green_m 0.50 blue_m 1.55 black 0.00 label \{Kodak GT5274\}\}" "presets/Kodak 5217" "knobs this \{red_size 0.23 green_size 1.20 blue_size 1.40 red_i 0.60 green_i 0.86 blue_i 0.60 red_m 0.48 green_m 0.42 blue_m 0.87 black 0.00 label \{Kodak 5217\}\}" "presets/Kodak 5218" "knobs this \{red_size 0.10 green_size 1.60 blue_size 1.91 red_i 0.60 green_i 0.86 blue_i 0.73 red_m 0.38 green_m 0.17 blue_m 0.87 black 0.00 label \{Kodak 5218\}\}" presets/other "knobs this \{label other\}" ""}}
+  addUserKnob {26 "" l "@b;Size"}
+  addUserKnob {14 red_size l red R 0 100}
+  red_size 1.5
+  addUserKnob {14 green_size l green R 0 100}
+  green_size 2.4
+  addUserKnob {14 blue_size l blue R 0 100}
+  blue_size 3.6
+  addUserKnob {7 mid l INVISIBLE +INVISIBLE R 2 10}
+  mid 10
+  addUserKnob {7 low l INVISIBLE +INVISIBLE R 2 100}
+  low 30
+  addUserKnob {26 "" l "@b;Irregularity"}
+  addUserKnob {7 red_i l red}
+  red_i 0.425
+  addUserKnob {7 green_i l green}
+  green_i 0.405
+  addUserKnob {7 blue_i l blue}
+  blue_i 0.52
+  addUserKnob {26 "" l "@b;Intensity"}
+  addUserKnob {7 red_m l red t "Amount of grain to add to a white pixel"}
+  red_m 0.17
+  addUserKnob {7 green_m l green}
+  green_m 0.06
+  addUserKnob {7 blue_m l blue}
+  blue_m 0.05
+  addUserKnob {18 black t "Amount of grain to add everywhere"}
+  black {0.006 0.002 0.003}
+  addUserKnob {6 black_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 black_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {18 minimum t "Minimum black level" R 0 0.01}
+  minimum {0 0 0}
+  addUserKnob {6 minimum_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 minimum_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {41 mix_mid l INVISIBLE +INVISIBLE T Merge1.mix}
+  addUserKnob {41 mix_low l INVISIBLE +INVISIBLE T Merge2.mix}
+  addUserKnob {26 treat_grain l "<b>Treat Grain"}
+  addUserKnob {41 size l "soften size" T Soften_GRAIN.size}
+  addUserKnob {41 amount l "soften amount" T Soften_GRAIN.amount}
+  addUserKnob {7 blur R 0 10}
+  addUserKnob {26 "" l "@b;Mask"}
+  addUserKnob {22 toggle_mask l "Toggle Mask" t "Toggle the Mask Input" -STARTLINE T "# Toggle Mask Input\nfrom __future__ import with_statement\nn = nuke.thisNode()\n# Disconnect Mask Input\nn.setInput(1, None)\nwith n:\n  mask_input = nuke.toNode('InputMask')\n  if mask_input:\n    nuke.delete(mask_input)\n  else:\n    mask_input = nuke.nodes.Input()\n    mask_input\['name'].setValue('InputMask')\n    mask_input.setXpos( 1280 )\n    mask_input.setYpos( -177 )\n    mdot = nuke.toNode('mask_dot')\n    mdot.setInput(0, mask_input)"}
+  addUserKnob {41 invert_mask l invert -STARTLINE T NodeWrapper1.invert_mask}
+  addUserKnob {41 maskChannelMask l "" -STARTLINE T NodeWrapper1.maskChannelMask}
+  addUserKnob {6 input_alpha l "apply through input alpha" t "Apply grain only through the input alpha. If this is unchecked, grain will be applied onto the entire image independent of alpha.\n" +STARTLINE}
+  input_alpha true
+  addUserKnob {7 gamma_alpha l "gamma alpha" t "Gamma up your alpha so that grain is applied evenly out to the edge. This avoids \"no grain in the motion blur\" syndrome." R 0.2 4}
+  gamma_alpha 3
+  addUserKnob {41 mix T NodeWrapper1.mix}
+  addUserKnob {20 LumaResponse}
+  addUserKnob {41 operation T Keyer2.operation}
+  addUserKnob {41 invert -STARTLINE T Keyer2.invert}
+  addUserKnob {6 view_key l "preview key" t "Preview the generated key, so you can know what areas you are affecting." -STARTLINE}
+  addUserKnob {41 range T Keyer2.range}
+  addUserKnob {7 intensity_within l "Intensity Within Mask" t "Adjust the grain intensity within the keyed area of the image.\n\nFor example, if you key the highlights, and set this to zero, there will be no grain added in the highlights." R 0 4}
+  intensity_within 0.62
+ }
+  Group {
+   inputs 0
+   name INTENSITY
+   help "Provides a nonlinear contrast control with a pivot. Same as the ColorCorrect contrast slider, except with a centerpoint control with the pivot slider. \n\nGamma = 1/Contrast, Gain = Pivot^Contrast"
+   knobChanged "from __future__ import with_statement\n\nn = nuke.thisNode()\nk = nuke.thisKnob()\n\n# Enable mask input checkbox, which destroys or creates the mask input, and hides or unhides related knobs\nif k.name() == 'enable_mask':\n  if k.value() == True:\n    with n:\n      inmask = nuke.nodes.Input(name='InputMask')\n      inmask.setXpos( -260 )\n      inmask.setYpos( 39 )\n      blurmask = nuke.toNode( 'BlurMask' )\n      blurmask.setInput(0, inmask )\n    n\['invert_mask'].setVisible(True)\n    n\['mask_blur_size'].setVisible(True)\n    n\['from0'].setVisible(True)\n  \n  if k.value() == False:\n    with n:\n      inmask = nuke.toNode('InputMask')\n      nuke.delete(inmask)\n    n\['invert_mask'].setVisible(False)\n    n\['mask_blur_size'].setVisible(False)\n    n\['from0'].setVisible(False)"
+   tile_color 0x3674b1ff
+   xpos -464
+   ypos -874
+   addUserKnob {20 Contrast}
+   addUserKnob {41 channels T Gamma1.channels}
+   addUserKnob {41 contrast T Input1.contrast}
+   addUserKnob {41 pivot T Input1.pivot}
+   addUserKnob {7 saturation R 0.4 1.2}
+   saturation 1
+   addUserKnob {26 spacer l " " T " "}
+  }
+   Input {
+    inputs 0
+    name InputMask
+    xpos -480
+    ypos -442
+    number 1
+   }
+   Dot {
+    name Dot6
+    note_font_size 42
+    note_font_color 0x7f7f7f01
+    xpos -446
+    ypos -114
+   }
+   Input {
+    inputs 0
+    name Input1
+    xpos -40
+    ypos -561
+    addUserKnob {20 User}
+    addUserKnob {18 contrast R 0 3}
+    contrast {{parent.grain_intensity_in_key}}
+    addUserKnob {6 contrast_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+    addUserKnob {6 contrast_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
+    addUserKnob {18 pivot}
+    pivot 0.5
+    addUserKnob {6 pivot_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+    addUserKnob {6 pivot_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
+   }
+   Dot {
+    name Dot5
+    label " Input"
+    note_font_size 42
+    note_font_color 0x7f7f7f01
+    xpos -6
+    ypos -438
+   }
+set N4549f800 [stack 0]
+   Gamma {
+    channels rgb
+    value {{1/parent.contrast} {1/parent.contrast} {1/parent.contrast} {1/parent.contrast}}
+    name Gamma1
+    xpos -40
+    ypos -298
+   }
+   Multiply {
+    channels {{{parent.Gamma1.channels}}}
+    value {{"pow(parent.pivot, 1-parent.contrast)"} {"pow(parent.pivot, 1-parent.contrast)"} {"pow(parent.pivot, 1-parent.contrast)"} 1}
+    name Multiply1
+    xpos -40
+    ypos -226
+   }
+push $N4549f800
+   Dot {
+    name Dot7
+    note_font_size 42
+    note_font_color 0x7f7f7f01
+    xpos -226
+    ypos -438
+   }
+   Dot {
+    name Dot9
+    label plate
+    note_font_size 42
+    note_font_color 0x7f7f7f01
+    xpos -226
+    ypos -222
+   }
+   Keymix {
+    inputs 3
+    bbox B
+    name Keymix1
+    label "Mask Effect"
+    xpos -40
+    ypos -130
+   }
+   Output {
+    name Output1
+    xpos -40
+    ypos 98
+   }
+  end_group
+  Input {
+   inputs 0
+   name Input
+   label "\[value number]"
+   xpos -590
+   ypos -1780
+  }
+  Dot {
+   name Dot4
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos -556
+   ypos -1554
+  }
+set N4549d800 [stack 0]
+  Dot {
+   name Dot7
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos -556
+   ypos -690
+  }
+set N4549d400 [stack 0]
+  Keyer {
+   operation "luminance key"
+   range {0.0297869051 0.3005488418 1 1}
+   name Keyer2
+   selected true
+   xpos -370
+   ypos -700
+  }
+set N4549d000 [stack 0]
+  Shuffle {
+   red alpha
+   green alpha
+   blue alpha
+   name ALPHA
+   xpos -370
+   ypos -592
+  }
+  Dot {
+   name Dot13
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos -336
+   ypos 246
+  }
+  Dot {
+   inputs 0
+   name mask_dot
+   label "Mask Input"
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos 1314
+   ypos -6
+  }
+push $N4549d800
+  Dot {
+   name Dot3
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos -116
+   ypos -1554
+  }
+set N45917c00 [stack 0]
+  Dot {
+   name Dot1
+   xpos 104
+   ypos -1554
+  }
+set N45917800 [stack 0]
+  Dot {
+   name Dot2
+   xpos 324
+   ypos -1554
+  }
+set N45917400 [stack 0]
+  Dot {
+   name Dot11
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos 874
+   ypos -1554
+  }
+  Dot {
+   name Dot10
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos 874
+   ypos -222
+  }
+set N45916c00 [stack 0]
+  Shuffle {
+   red white
+   green white
+   blue white
+   alpha white
+   name WHITE1
+   tile_color 0xfefefeff
+   xpos 1060
+   ypos -226
+   disable {{parent.input_alpha}}
+  }
+  Dot {
+   name Dot12
+   xpos 1094
+   ypos -78
+  }
+  Switch {
+   inputs 2
+   which {{"\[exists parent.input1]"}}
+   name MaskSwitch
+   xpos 1060
+   ypos -10
+  }
+  Gamma {
+   channels alpha
+   value {{parent.gamma_alpha}}
+   name Gamma1
+   xpos 950
+   ypos -16
+  }
+push $N4549d000
+push $N45917400
+  Noise {
+   output {rgba.red -rgba.green -rgba.blue -rgba.alpha}
+   cliptype none
+   replace true
+   size {{parent.red_size.w*low} {parent.red_size.h*low}}
+   zoffset {{frame+seed+red_i/2}}
+   octaves 2
+   lacunarity 1.5
+   gamma 1
+   xrotate {{red_i*45}}
+   yrotate {{red_i*45}}
+   name red2
+   xpos 290
+   ypos -1378
+  }
+  Noise {
+   output {-rgba.red rgba.green -rgba.blue -rgba.alpha}
+   cliptype none
+   replace true
+   size {{parent.green_size.w*low} {parent.green_size.h*low}}
+   zoffset {{frame+2*seed+green_i/2}}
+   octaves 2
+   lacunarity 1.5
+   gamma 1
+   xrotate {{green_i*45}}
+   yrotate {{green_i*45}}
+   name green2
+   xpos 290
+   ypos -1342
+  }
+  Noise {
+   output {-rgba.red -rgba.green rgba.blue -rgba.alpha}
+   cliptype none
+   replace true
+   size {{parent.blue_size.w*low} {parent.blue_size.h*low}}
+   zoffset {{frame+3*seed+blue_i/2}}
+   octaves 2
+   lacunarity 1.5
+   gamma 1
+   xrotate {{blue_i*45}}
+   yrotate {{blue_i*45}}
+   name blue2
+   xpos 290
+   ypos -1306
+  }
+  Add {
+   value -0.5
+   name Add2
+   xpos 290
+   ypos -1240
+  }
+  Dot {
+   name Dot8
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos 324
+   ypos -1050
+  }
+push $N45917800
+  Noise {
+   output {rgba.red -rgba.green -rgba.blue -rgba.alpha}
+   cliptype none
+   replace true
+   size {{parent.red_size.w*mid} {parent.red_size.h*mid}}
+   zoffset {{frame+seed+red_i/2}}
+   octaves 2
+   lacunarity 1.5
+   gamma 1
+   xrotate {{red_i*45}}
+   yrotate {{red_i*45}}
+   name red1
+   xpos 70
+   ypos -1378
+  }
+  Noise {
+   output {-rgba.red rgba.green -rgba.blue -rgba.alpha}
+   cliptype none
+   replace true
+   size {{parent.green_size.w*mid} {parent.green_size.h*mid}}
+   zoffset {{frame+2*seed+green_i/2}}
+   octaves 2
+   lacunarity 1.5
+   gamma 1
+   xrotate {{green_i*45}}
+   yrotate {{green_i*45}}
+   name green1
+   xpos 70
+   ypos -1342
+  }
+  Noise {
+   output {-rgba.red -rgba.green rgba.blue -rgba.alpha}
+   cliptype none
+   replace true
+   size {{parent.blue_size.w*mid} {parent.blue_size.h*mid}}
+   zoffset {{frame+3*seed+blue_i/2}}
+   octaves 2
+   lacunarity 1.5
+   gamma 1
+   xrotate {{blue_i*45}}
+   yrotate {{blue_i*45}}
+   name blue1
+   xpos 70
+   ypos -1306
+  }
+  Add {
+   value -0.5
+   name Add1
+   xpos 70
+   ypos -1240
+  }
+  Dot {
+   name Dot9
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos 104
+   ypos -1122
+  }
+push $N45917c00
+  Noise {
+   output {rgba.red -rgba.green -rgba.blue -rgba.alpha}
+   cliptype none
+   replace true
+   size {{parent.red_size.w} {parent.red_size.h}}
+   zoffset {{frame+seed+red_i/2}}
+   octaves 2
+   gamma 1
+   xrotate {{red_i*45}}
+   yrotate {{red_i*45}}
+   name red
+   xpos -150
+   ypos -1378
+  }
+  Noise {
+   output {-rgba.red rgba.green -rgba.blue -rgba.alpha}
+   cliptype none
+   replace true
+   size {{parent.green_size.w} {parent.green_size.h}}
+   zoffset {{frame+2*seed+green_i/2}}
+   octaves 2
+   gamma 1
+   xrotate {{green_i*45}}
+   yrotate {{green_i*45}}
+   name green
+   xpos -150
+   ypos -1342
+  }
+  Noise {
+   output {-rgba.red -rgba.green rgba.blue -rgba.alpha}
+   cliptype none
+   replace true
+   size {{parent.blue_size.w} {parent.blue_size.h}}
+   zoffset {{frame+3*seed+blue_i/2}}
+   octaves 2
+   gamma 1
+   xrotate {{blue_i*45}}
+   yrotate {{blue_i*45}}
+   name blue
+   xpos -150
+   ypos -1306
+  }
+  Merge2 {
+   inputs 2
+   operation plus
+   mix 0
+   name Merge1
+   xpos -150
+   ypos -1126
+   disable true
+  }
+  Merge2 {
+   inputs 2
+   operation plus
+   mix 0
+   name Merge2
+   xpos -150
+   ypos -1054
+   disable true
+  }
+  Dot {
+   name Dot15
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos -116
+   ypos -762
+  }
+set N458b1c00 [stack 0]
+  Gamma {
+   channels rgb
+   value {{1/parent.intensity_within} {1/parent.intensity_within} {1/parent.intensity_within} {curve}}
+   name Gamma2
+   xpos -40
+   ypos -766
+  }
+  Multiply {
+   channels rgb
+   value {{"pow(pivot, 1-parent.intensity_within)"} {"pow(pivot, 1-parent.intensity_within)"} {"pow(pivot, 1-parent.intensity_within)"} 1}
+   name Multiply1
+   xpos -40
+   ypos -694
+   addUserKnob {20 User}
+   addUserKnob {7 pivot}
+   pivot 0.5
+  }
+push $N458b1c00
+  Keymix {
+   inputs 3
+   channels rgba
+   bbox B
+   name Keymix1
+   xpos -150
+   ypos -694
+  }
+  Soften {
+   channels rgb
+   amount 0.095
+   name Soften_GRAIN
+   xpos -150
+   ypos -442
+  }
+  Blur {
+   channels rgb
+   size {{parent.blur}}
+   name Blur1
+   xpos -150
+   ypos -370
+  }
+push $N4549d400
+  Dot {
+   name Dot5
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos -556
+   ypos -222
+  }
+set N458b0400 [stack 0]
+  MergeExpression {
+   inputs 2
+   expr0 max(minimum.r,r+(2*Ar-1)*(r*red_m+black.r))
+   expr1 max(minimum.g,g+(2*Ag-1)*(g*green_m+black.g))
+   expr2 max(minimum.b,b+(2*Ab-1)*(b*blue_m+black.b))
+   name MergeExpression2
+   xpos -150
+   ypos -226
+  }
+  Dot {
+   name Dot14
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos -116
+   ypos -6
+  }
+push $N45916c00
+  NodeWrapper {
+   inputs 2+1
+   channels rgb
+   name NodeWrapper1
+   xpos 840
+   ypos -10
+  }
+  Switch {
+   inputs 2
+   which {{parent.view_key}}
+   name Switch1
+   xpos 840
+   ypos 242
+  }
+set N4588c100 [stack 0]
+push $N45916c00
+  Dot {
+   name Dot16
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos 654
+   ypos -222
+  }
+  Dot {
+   name Dot17
+   note_font_size 42
+   note_font_color 0x7f7f7f01
+   xpos 654
+   ypos 426
+  }
+  Switch {
+   inputs 2
+   which {{"\[exists parent.input0]"}}
+   name MaskSwitch1
+   label "Bypass if no input"
+   xpos 840
+   ypos 416
+  }
+  Output {
+   name Output
+   xpos 840
+   ypos 566
+  }
+push $N458b0400
+push $N4588c100
+  Viewer {
+   inputs 2
+   gain 1.08
+   colour_sample_bbox {0.5322916508 0.002083333442 0.5333333611 0.003125000047}
+   input_process false
+   name Viewer1
+   xpos -590
+   ypos 458
+  }
+ end_group
+ Merge2 {
+  inputs 2
+  name Merge37
+  xpos -126
+  ypos 798
+ }
+ Copy {
+  inputs 2
+  from0 rgba.alpha
+  to0 rgba.alpha
+  name Copy14
+  xpos 0
+  ypos 792
+ }
+ Premult {
+  name Premult4
+  xpos 0
+  ypos 877
+ }
+ Output {
+  name Output1
+  xpos 0
+  ypos 979
+ }
+push $N302da800
+ Viewer {
+  frame_range 1021-1153
+  input_process false
+  name Viewer1
+  xpos -578
+  ypos 565
+ }
+end_group
